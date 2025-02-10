@@ -1,0 +1,35 @@
+{
+  "name": "@bp1410/spectro-vis",
+  "version": "0.0.1",
+  "description": "Spectrogram visualization library based on three.js.",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.es.js",
+  "browser": "dist/index.umd.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.cjs.js"
+    },
+    "./umd": "./dist/index.umd.js"
+  },
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "fft",
+    "visualization"
+  ],
+  "author": "Bolesław Potrac",
+  "license": "MIT",
+  "devDependencies": {
+    "three": "^0.172.0",
+    "three-spritetext": "^1.9.4",
+    "vite": "^6.0.11",
+    "vite-plugin-glsl": "^1.3.1"
+  }
+}
