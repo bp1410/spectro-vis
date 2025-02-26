@@ -357,4 +357,10 @@ export class SpectrogramThree extends Spectrogram {
         }
     }
 
+    setSampling(sps){
+        super.setSampling(sps); // sampling and fftRes update
+        this.xAxisUpdate();
+        this.needsUpdate = true;
+    }
+
 }

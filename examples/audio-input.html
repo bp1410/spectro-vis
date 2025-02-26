@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>Spectrogam with Spectro-vis example</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.0.6/css/pico.min.css" />
+    <!-- <script src="https://unpkg.com/@bp1410/spectro-vis/dist/index.umd.js"></script> -->
+    <script src="./index.umd.js"></script>
+    <script src="./web-audio.js"></script>
+</head>
+
+<body>
+    <main class="container" style="width: 1024px;">
+        <div class="grid">
+            <div style="width: 100%;">
+                <label for="inputSelect">Audio input devices</label>
+                <select id="inputSelect" name="select" required>
+                </select>
+                <fieldset>
+                    <label for="enableInput">
+                        <input type="checkbox" role="switch" id="enableInput" name="enableInput" />
+                        Enable
+                    </label>
+                </fieldset>
+            </div>
+            <div style="width: 100%;">
+                <label for="file">File browser
+                    <input type="file" id="file" name="file" />
+                </label>
+                <label id="rLabel" for="rangeInput">00:00</label>
+                <input type="range" min="0" max="100" value="0" id="rangeInput" name="range" />
+            </div>
+        </div>
+        <div class="grid">
+            <div style="width: 100%;">
+                <div class="grid">
+                    <button id="disposeBtn" class="secondary">Dispose</button>
+                    <button id="initBtn" class="secondary">Init</button>
+                </div>
+            </div>
+            <div style="width: 100%;">
+                <fieldset role="group">
+                    <button id="bRun">&#x16b1;un</button>
+                    <button id="bPause" class="secondary">Pause</button>
+                    <button id="bStop" class="secondary">Stop</button>
+                </fieldset>
+            </div>
+        </div>
+
+        <canvas id="myCanvas" width="1024" height="576"></canvas>
+        <script>
+            let spectrogram = null;
+            let updateInterval = null;
+            let isPlaying = false;
+            window.onload = function () {
+                console.log("Module Loaded:", window.SpecT);
+                if (window.SpecT) {
+                    const SpecT = window.SpecT;
+                    const fftSize = 16384;
+                    const canvas = document.getElementById("myCanvas");
+
+                    function initSpectrogram() {
+                        spectrogram = new SpecT.SpectrogramThree({ canvas: canvas, fftSize: fftSize, sampling: 96000 });
+                    }
+
+                    function disposeSpectrogram() {
+                        spectrogram.dispose();
+                        clearInterval(updateInterval);
+                        updateInterval = null;
+                    }
+
+                    initSpectrogram();
+
+                    initAudio(fftSize,
+                        (sps) => {
+                            spectrogram.log(sps);
+                            spectrogram.setSampling(sps);
+                            const fftTime = fftSize / sps;
+                            updateInterval = setInterval(() => spectrogram.step(window.freqData), fftTime * 1000);
+                        },
+                        () => clearInterval(updateInterval)
+                    );
+
+                    document.getElementById("disposeBtn").onclick = disposeSpectrogram;
+                    document.getElementById("initBtn").onclick = () => {
+                        disposeSpectrogram();
+                        initSpectrogram();
+                    };
+
+                }
+            };
+        </script>
+    </main>
+</body>
+
+</html>

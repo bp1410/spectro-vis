@@ -103,6 +103,12 @@ export class Spectrogram {
         this.log(signal)
     }
 
+    setSampling(sps){
+        this.vars.signal.sampling = sps;
+        this.vars.signal.fftRes = sps / this.vars.signal.fftSize;
+        this.log(this.vars.signal);
+    }
+
     step(row) {
 
     }
