@@ -1,6 +1,6 @@
 {
   "name": "@bp1410/spectro-vis",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Spectrogram visualization library based on three.js.",
   "type": "module",
   "main": "dist/index.cjs",
