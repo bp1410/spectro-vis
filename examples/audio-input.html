@@ -63,7 +63,7 @@
                     const canvas = document.getElementById("myCanvas");
 
                     function initSpectrogram() {
-                        spectrogram = new SpecT.SpectrogramThree({ canvas: canvas, fftSize: fftSize, sampling: 96000 });
+                        spectrogram = new SpecT.SpectrogramThree({ canvas: canvas, fftSize: fftSize, sampling: 96000 }); window.spec = spectrogram;
                     }
 
                     function disposeSpectrogram() {

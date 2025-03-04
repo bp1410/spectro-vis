@@ -13,7 +13,9 @@ export class Spectrogram {
             display = Display.WIDE, childName = "spectro-vis", direction = "top",   // TODO Implement Display related resize
             fftSize = 16384, sampling = 44100,
             fontFace = "Monospace", fontSize = "24", fontColor = "#777", bgColor = "#121212",
-            minRangeBins = 200  // no less visible bins on highest zoom
+            barColor = "#ff1", peakColor = "#f11", gridColor = "#777",
+            minRangeBins = 200,  // no less visible bins on highest zoom
+            baseColors = [0x2f0087, 0x6200a4, 0x9200a6, 0xba2f8a, 0xd85b69, 0xee8949, 0xf6bd27, 0xe4fa15]
         } = options;
 
         // Resolution check
@@ -31,7 +33,12 @@ export class Spectrogram {
             fontColor: fontColor,
             fontFace: fontFace,
             fontSize: fontSize,
-            bgColor: bgColor
+            bgColor: bgColor,
+            barColor: barColor,
+            peakColor: peakColor,
+            gridColor: gridColor,
+            baseColors: baseColors,
+            colorMapRange: { min: 0, max: 1 }
         }
 
         // Signal info
@@ -43,7 +50,7 @@ export class Spectrogram {
         }
 
         // Mouse events
-        this.updateRange = ()=>{};
+        this.updateRange = () => { };
 
         // Scrolling
         canvas.addEventListener("wheel", (event) => {
@@ -78,6 +85,12 @@ export class Spectrogram {
             isDragging = false;
         });
 
+        this.removeListeners = ()=>{
+            const c = canvas.cloneNode(true);
+            canvas.parentNode.replaceChild(c, canvas);
+            this.options.canvas = c;
+        }
+
         // Store variables
         this.vars = {};
         this.vars.logPrefix = `[${childName}]`;
@@ -103,7 +116,38 @@ export class Spectrogram {
         this.log(signal)
     }
 
-    setSampling(sps){
+    setBaseColors(baseColors) {
+        try {
+            if (!Array.isArray(baseColors)) {
+                throw new Error("baseColors must be an array");
+            }
+            if (baseColors.length !== 8) {
+                throw new Error("baseColors must contain exactly 8 color values");
+            }
+            this.vars.look.baseColors = baseColors;
+        } catch (error) {
+            console.error("Error in setBaseColors:", error.message);
+        }
+    }
+
+    setColorMapRange(min = 0.0, max = 1.0) {
+        try {
+            if (typeof min !== 'number' || typeof max !== 'number') {
+                throw new Error("min and max must be numbers");
+            }
+            if (min < 0 || min > 1 || max < 0 || max > 1) {
+                throw new Error("min and max must be between 0 and 1");
+            }
+            if (min > max) {
+                throw new Error("min should be less than or equal to max");
+            }
+            this.vars.look.colorMapRange = { min: min, max: max };
+        } catch (error) {
+            console.error("Error in setColorMapRange:", error.message);
+        }
+    }
+
+    setSampling(sps) {
         this.vars.signal.sampling = sps;
         this.vars.signal.fftRes = sps / this.vars.signal.fftSize;
         this.log(this.vars.signal);
@@ -185,7 +229,7 @@ export class Spectrogram {
     }
 
     dispose() {
-
+        this.removeListeners();
     }
 
     log(msg, symbol = "\u{1F6E0}") {    // TODO: allow multiple objects

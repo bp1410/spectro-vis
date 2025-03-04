@@ -226,8 +226,6 @@ function playAudioFile(startTime = 0) {
     audioBufferSource.start(0, startTime);
     filePlaying = true;
 
-    console.log(`time: ${startTime}`)
-
     function updateRange() {
         if (!filePlaying) return;
 
@@ -236,7 +234,6 @@ function playAudioFile(startTime = 0) {
 
         requestAnimationFrame(updateRange);
         const currentTime = audioFileContext.currentTime + startTime;
-        console.log(currentTime, startTime)
         rangeInput.value = Math.floor(currentTime);
         updateLabel(currentTime);
 
@@ -246,7 +243,6 @@ function playAudioFile(startTime = 0) {
             const mindB = analyser.minDecibels;
             const bufferLength = analyser.frequencyBinCount;
             window.freqData = new Float32Array(bufferLength);
-            console.log(maxdB, mindB, bufferLength);
             analyser.getFloatFrequencyData(window.freqData);
             for (let i = 0; i < window.freqData.length; i++) {
                 window.freqData[i] = (window.freqData[i] - mindB) / (maxdB - mindB);
@@ -299,7 +295,6 @@ function pauseAudioFile() {
 }
 
 function updateLabel(seconds) {
-    console.log("label: " + seconds)
     const rLabel = document.getElementById("rLabel");
     if (typeof seconds === 'string') {
         rLabel.innerHTML = seconds;

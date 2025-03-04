@@ -6,6 +6,13 @@ uniform sampler2D u_ffts;
 
 uniform float u_range[2];
 
+struct ColorMapRange {
+  float min;
+  float max;
+};
+
+uniform ColorMapRange u_colorMapRange;
+
 void main(){
   // apply range
   float uv_y = mix(0.0, 0.25, v_uv.y);

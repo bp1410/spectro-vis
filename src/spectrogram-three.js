@@ -3,8 +3,8 @@ import { Spectrogram } from "./common";
 import { Color, DataTexture, FloatType, Group, Mesh, MeshBasicMaterial, OrthographicCamera, PlaneGeometry, RedFormat, Scene, ShaderMaterial, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
 
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js" // Implements render phases (post-processing phases)
-import { RenderPass } from "three/addons/postprocessing/RenderPass.js" 
-import { ClearPass } from "three/addons/postprocessing/ClearPass.js" 
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js"
+import { ClearPass } from "three/addons/postprocessing/ClearPass.js"
 
 import vertex from './glsl/vertex1.glsl'
 import fragment from './glsl/fragment-spec.glsl'
@@ -44,7 +44,7 @@ export class SpectrogramThree extends Spectrogram {
         // Renderer
         const renderer = new WebGLRenderer({
             canvas: this.options.canvas,
-            antialias: true 
+            antialias: true
         });
         renderer.setClearColor(this.vars.look.bgColor);
         renderer.setSize(this.dims.renderer.width, this.dims.renderer.height);
@@ -59,8 +59,8 @@ export class SpectrogramThree extends Spectrogram {
 
         // Get size in pixels from camera space
         this.cameraToPx = (camSize) => {
-            return new Vector2(camSize * (this.dims.renderer.width * this.vars.dpr) / this.dims.camera.width, 
-            camSize * (this.dims.renderer.height * this.vars.dpr) / this.dims.camera.height);
+            return new Vector2(camSize * (this.dims.renderer.width * this.vars.dpr) / this.dims.camera.width,
+                camSize * (this.dims.renderer.height * this.vars.dpr) / this.dims.camera.height);
         }
 
         // Init float texture
@@ -91,17 +91,19 @@ export class SpectrogramThree extends Spectrogram {
             u_marker_y: { value: 0.05 },
 
             u_colors: {
-                value: [
-                    new Color(0x2f0087), // {r: 47, g: 0, b: 135}
-                    new Color(0x6200a4), // {r: 98, g: 0, b: 164}
-                    new Color(0x9200a6), // {r: 146, g: 0, b: 166}
-                    new Color(0xba2f8a), // {r: 186, g: 47, b: 138}
-                    new Color(0xd85b69), // {r: 216, g: 91, b: 105}
-                    new Color(0xee8949), // {r: 238, g: 137, b: 73}
-                    new Color(0xf6bd27), // {r: 246, g: 189, b: 39}
-                    new Color(0xe4fa15)  // {r: 228, g: 250, b: 21}             
-                ]
+                // value: [
+                //     new Color(0x2f0087), // {r: 47, g: 0, b: 135}
+                //     new Color(0x6200a4), // {r: 98, g: 0, b: 164}
+                //     new Color(0x9200a6), // {r: 146, g: 0, b: 166}
+                //     new Color(0xba2f8a), // {r: 186, g: 47, b: 138}
+                //     new Color(0xd85b69), // {r: 216, g: 91, b: 105}
+                //     new Color(0xee8949), // {r: 238, g: 137, b: 73}
+                //     new Color(0xf6bd27), // {r: 246, g: 189, b: 39}
+                //     new Color(0xe4fa15)  // {r: 228, g: 250, b: 21}             
+                // ]
+                value: this.vars.look.baseColors.map(c => new Color(c))
             },
+            u_colorMapRange: { value: this.vars.look.colorMapRange },
             u_ffts: { value: this.vars.ffts.tex },
             u_range: { value: [0.0, 1.0] }
         };
@@ -110,7 +112,7 @@ export class SpectrogramThree extends Spectrogram {
         // Scene
         const scene = new Scene();
 
-        const histResolution = {width: this.cameraToPx(this.dims.plane2.width).x , height: this.cameraToPx(this.dims.plane2.height).y};
+        const histResolution = { width: this.cameraToPx(this.dims.plane2.width).x, height: this.cameraToPx(this.dims.plane2.height).y };
         const histTarget = new WebGLRenderTarget(histResolution.width, histResolution.height);
 
         const planeGeom1 = new PlaneGeometry(this.dims.plane1.width, this.dims.plane1.height);
@@ -126,7 +128,7 @@ export class SpectrogramThree extends Spectrogram {
         const matShader2 = new ShaderMaterial({
             uniforms: uniforms, vertexShader: vertex, fragmentShader: fragment
         });
-        const matHist = new MeshBasicMaterial({map: histTarget.texture});
+        const matHist = new MeshBasicMaterial({ map: histTarget.texture });
         const mesh2 = new Mesh(planeGeom2, matHist);
         mesh2.translateX(this.dims.plane2.x);
         mesh2.translateY(this.dims.plane2.y);
@@ -155,16 +157,20 @@ export class SpectrogramThree extends Spectrogram {
         // const clearPass = new ClearPass(0xcc1111, 1.0); clearPass.renderToScreen = true;
         // composer.addPass(clearPass);
 
-        const histEff = new HistEffect({renderer: renderer, resolution: histResolution, renderTarget: histTarget, dataLength: this.vars.ffts.width,
-            bgColor: this.vars.look.bgColor
+        const histEff = new HistEffect({
+            renderer: renderer, resolution: histResolution, renderTarget: histTarget, dataLength: this.vars.ffts.width,
+            bgColor: this.vars.look.bgColor,
+            barColor: this.vars.look.barColor,
+            peakColor: this.vars.look.peakColor,
+            gridColor: this.vars.look.gridColor
         });
         this.vars.histEff = histEff;
-        this.updateRange = ()=>{this.vars.histEff.updateRange(this.uniforms.u_range.value);}
+        this.updateRange = () => { this.vars.histEff.updateRange(this.uniforms.u_range.value); }
 
         this.render = () => {
             histEff.render();
 
-            composer.render(); 
+            composer.render();
         }
 
         // Render loop
@@ -174,13 +180,18 @@ export class SpectrogramThree extends Spectrogram {
                 this.needsUpdate = false;
             }
 
-        }, 50);        
+        }, 50);
 
         // const animate = function (time_ms) {
         //     renderer.render(scene, camera);
         //     requestAnimationFrame(animate.bind(this));
         // }
         // requestAnimationFrame(animate.bind(this));
+
+        this.histTarget = histTarget;
+        this.composer = composer;
+        this.scene = scene;
+        this.render = renderer;
 
     }
 
@@ -217,12 +228,12 @@ export class SpectrogramThree extends Spectrogram {
             this.dims.xAxis1.y = this.dims.plane1.y - (this.dims.plane1.height + this.dims.xAxis1.height) * 0.5;
 
             this.dims.plane2.width = this.dims.camera.width;
-            this.dims.plane2.height = (this.dims.camera.height - this.dims.plane1.height - this.dims.xAxis1.height)/2;
+            this.dims.plane2.height = (this.dims.camera.height - this.dims.plane1.height - this.dims.xAxis1.height) / 2;
             this.dims.plane2.x = 0;
             this.dims.plane2.y = this.dims.xAxis1.y - (this.dims.xAxis1.height + this.dims.plane2.height) * 0.5;
 
             this.dims.plane3.width = this.dims.camera.width;
-            this.dims.plane3.height = (this.dims.camera.height - this.dims.plane1.height - this.dims.xAxis1.height)/2;
+            this.dims.plane3.height = (this.dims.camera.height - this.dims.plane1.height - this.dims.xAxis1.height) / 2;
             this.dims.plane3.x = 0;
             this.dims.plane3.y = this.dims.plane2.y - (this.dims.plane2.height + this.dims.plane3.height) * 0.5;
 
@@ -310,7 +321,7 @@ export class SpectrogramThree extends Spectrogram {
         this.xAxisUpdate();
     }
 
-    moveFreqRange(delta){
+    moveFreqRange(delta) {
         super.moveFreqRange(delta);
         this.uniforms.u_range.value = [this.vars.zoom.min / this.vars.signal.bins, this.vars.zoom.max / this.vars.signal.bins];
         this.updateRange();
@@ -321,6 +332,27 @@ export class SpectrogramThree extends Spectrogram {
         super.dispose();
         clearInterval(this.mainLoop);
         // TODO dispose everything
+        this.vars.histEff.dispose();
+        this.vars.ffts.tex.dispose();
+        this.histTarget.dispose();
+        this.composer.dispose();
+        this.renderer.dispose();
+        if (this.scene) {
+            this.scene.traverse((child) => {
+                if (child.geometry) {
+                    child.geometry.dispose();
+                }
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach(material => material.dispose());
+                    } else {
+                        child.material.dispose();
+                    }
+                }
+            });
+            this.scene.clear();
+        }
+
     }
 
     // TODO make sliding values
@@ -350,16 +382,28 @@ export class SpectrogramThree extends Spectrogram {
         const range = this.vars.zoom;
         const df = ((range.max - range.min) / this.vars.xAxis1.length + 1) * this.vars.signal.fftRes;
         const d0 = range.min * this.vars.signal.fftRes;
-        const prec = (df<1)?3:(df<10)?2:0;
-        for(let l=0;l<this.vars.xAxis1.length;l++){
-            const f = d0 + (l+1) * df;
+        const prec = (df < 1) ? 3 : (df < 10) ? 2 : 0;
+        for (let l = 0; l < this.vars.xAxis1.length; l++) {
+            const f = d0 + (l + 1) * df;
             this.vars.xAxis1[l].text = f.toFixed(prec);
         }
     }
 
-    setSampling(sps){
+    setSampling(sps) {
         super.setSampling(sps); // sampling and fftRes update
         this.xAxisUpdate();
+        this.needsUpdate = true;
+    }
+
+    setBaseColors(baseColors) {
+        super.setBaseColors(baseColors);
+        this.uniforms.u_colors.value = this.vars.look.baseColors.map(c => new Color(c));
+        this.needsUpdate = true;
+    }
+
+    setColorMapRange(min = 0.0, max = 1.0) {
+        super.setColorMapRange(min, max);
+        this.uniforms.u_colorMapRange.value = this.vars.look.colorMapRange;
         this.needsUpdate = true;
     }
 

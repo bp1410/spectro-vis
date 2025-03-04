@@ -10,11 +10,11 @@ import fragment2 from './glsl/frag-hist.glsl'
 export class HistEffect {
 
     constructor(options) {
-        const renderer = options.renderer; 
-        const resolution = options.resolution; 
+        const renderer = options.renderer;
+        const resolution = options.resolution;
         const renderTarget = options.renderTarget;
         const dataLength = options.dataLength;
-        const {bgColor = "#222", barColor = "#ff1", peakColor =  "#f11", gridColor = "#777"} = options;
+        const { bgColor = "#222", barColor = "#ff1", peakColor = "#f11", gridColor = "#777" } = options;
         this.renderer = options.renderer;
         this.dataLength = options.dataLength;
 
@@ -113,7 +113,7 @@ export class HistEffect {
         });
     }
 
-    updateRange(range){
+    updateRange(range) {
         this.drawPass.uniforms.u_range.value = range;
     }
 
@@ -128,7 +128,18 @@ export class HistEffect {
     }
 
     dispose() {
+        this.composer.passes.forEach(pass => {
+            if (pass.dispose) {
+                pass.dispose();
+            }
+            if (pass.material) {
+                pass.material.dispose();
+            }
+        });
         this.composer.dispose();
+        this.newDataTexture.dispose();
+        this.tex1.dispose();
+        this.tex2.dispose();
     }
 
 }
