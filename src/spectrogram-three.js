@@ -191,7 +191,7 @@ export class SpectrogramThree extends Spectrogram {
         this.histTarget = histTarget;
         this.composer = composer;
         this.scene = scene;
-        this.render = renderer;
+        this.renderer = renderer;
 
     }
 
@@ -352,7 +352,7 @@ export class SpectrogramThree extends Spectrogram {
             });
             this.scene.clear();
         }
-
+        this.log("Disposed")
     }
 
     // TODO make sliding values

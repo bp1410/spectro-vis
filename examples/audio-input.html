@@ -67,6 +67,7 @@
                     }
 
                     function disposeSpectrogram() {
+                        stopAudio();
                         spectrogram.dispose();
                         clearInterval(updateInterval);
                         updateInterval = null;

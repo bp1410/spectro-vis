@@ -305,3 +305,11 @@ function updateLabel(seconds) {
     }
 
 }
+
+function stopAudio(){
+    const swEnabled = document.getElementById("enableInput");
+    if (swEnabled) {
+        swEnabled.checked = false;
+    }
+    stopAudioFile(true);
+}

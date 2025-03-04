@@ -53,20 +53,22 @@ export class Spectrogram {
         this.updateRange = () => { };
 
         // Scrolling
-        canvas.addEventListener("wheel", (event) => {
+        let wheelListener = (event) => {
             this.scaleFreqRange(event.deltaY);
-        });
+        };
+        canvas.addEventListener("wheel", wheelListener);
 
         // Dragging chart
         let isDragging = false;
         let previousMousePosition = { x: 0, y: 0 };
 
-        canvas.addEventListener("mousedown", (event) => {
+        let mousedownListener = (event) => {
             isDragging = true;
             previousMousePosition = { x: event.clientX, y: event.clientY };
-        });
+        };
+        canvas.addEventListener("mousedown", mousedownListener);
 
-        canvas.addEventListener("mousemove", (event) => {
+        let mousemoveListener = (event) => {
             if (!isDragging) return;
 
             const deltaMove = {
@@ -76,19 +78,26 @@ export class Spectrogram {
 
             this.moveFreqRange(deltaMove.x * 5 + 0.5 * Math.pow(deltaMove.x, 2) * Math.sign(deltaMove.x));
             previousMousePosition = { x: event.clientX, y: event.clientY };
-        });
+        };
+        canvas.addEventListener("mousemove", mousemoveListener);
 
-        canvas.addEventListener("mouseup", () => {
+        let mouseupListener = () => {
             isDragging = false;
-        });
-        canvas.addEventListener("mouseleave", () => {
-            isDragging = false;
-        });
+        };
+        canvas.addEventListener("mouseup", mouseupListener);
 
-        this.removeListeners = ()=>{
-            const c = canvas.cloneNode(true);
-            canvas.parentNode.replaceChild(c, canvas);
-            this.options.canvas = c;
+        let mouseleaveListener = () => {
+            isDragging = false;
+        };
+        canvas.addEventListener("mouseleave", mouseleaveListener);
+
+        this.removeListeners = () => {
+            if (!canvas) return;
+            canvas.removeEventListener("wheel", wheelListener);
+            canvas.removeEventListener("mousedown", mousedownListener);
+            canvas.removeEventListener("mousemove", mousemoveListener);
+            canvas.removeEventListener("mouseup", mouseupListener);
+            canvas.removeEventListener("mouseleave", mouseleaveListener);
         }
 
         // Store variables
