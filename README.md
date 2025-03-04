@@ -1,4 +1,4 @@
-# spectro-vis v0.0.1
+# spectro-vis v0.1.0
 
 # Usage:
 
@@ -13,6 +13,9 @@ const spectrogram = new SpectrogramThree({
     fontSize: "24",
     fontColor: "#777",
     bgColor: "#121212",
+    barColor: "#ff1",
+    peakColor: "#f11",
+    gridColor: "#777",
 });
 
 // Update the spectrogram with new data
@@ -26,6 +29,12 @@ spectrogram.setVisibleRows(200);
 
 // Adjust frequency range
 spectrogram.setFreqRange(1000, 5000);
+
+// Set a custom color map (8 colors required)
+spectrogram.setBaseColors([0x440154, 0x482777, 0x3F4A8A, 0x31678E, 0x26838F, 0x1F9D88, 0x6CCE5A, 0xFDE725]);
+
+// Adjust the color mapping range (normalized between 0 and 1)
+spectrogram.setColorMapRange(0.2, 0.8);
 
 // Dispose of the spectrogram instance when no longer needed
 spectrogram.dispose();
