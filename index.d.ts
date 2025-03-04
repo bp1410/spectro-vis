@@ -10,11 +10,11 @@ export class Spectrogram {
   constructor(options: SpectrogramOptions);
 
   /**
-   * Processes a single row of data for the spectrogram.
+   * Processes a single row of FFT data for the spectrogram.
    *
-   * @param row - The FFT data row to process.
+   * @param row - A Float32Array containing FFT data values.
    */
-  step(row: any): void;
+  step(row: Float32Array): void;
 
   /**
    * Resets the spectrogram to its initial state.
@@ -37,14 +37,32 @@ export class Spectrogram {
   setFreqRange(min: number, max: number): void;
 
   /**
+   * Sets a custom color map for the spectrogram.
+   * The color map must contain exactly 8 color values.
+   * Colors can be in hexadecimal format (e.g., `0xff0000`) or as CSS color strings (e.g., `"#ff0000"`).
+   *
+   * @param baseColors - An array of 8 colors as hex numbers or CSS strings.
+   */
+  setBaseColors(baseColors: (number | string)[]): void;
+
+  /**
+   * Adjusts the color mapping range for the spectrogram.
+   * The values must be normalized between 0.0 and 1.0.
+   *
+   * @param min - The minimum value of the color range (0.0 - 1.0).
+   * @param max - The maximum value of the color range (0.0 - 1.0).
+   */
+  setColorMapRange(min: number, max: number): void;
+
+  /**
    * Disposes of the spectrogram instance and releases any associated resources.
    */
   dispose(): void;
 }
 
 /**
-* Options for configuring the spectrogram.
-*/
+ * Options for configuring the spectrogram.
+ */
 export interface SpectrogramOptions {
   /**
    * The HTML canvas element where the spectrogram will be rendered.
@@ -86,9 +104,41 @@ export interface SpectrogramOptions {
    * Default: "#121212"
    */
   bgColor?: string;
+
+  /**
+   * The color of the spectrogram bars.
+   * Default: "#ff1"
+   */
+  barColor?: string;
+
+  /**
+   * The color of the peak intensity indicators.
+   * Default: "#f11"
+   */
+  peakColor?: string;
+
+  /**
+   * The color of the grid lines in the spectrogram.
+   * Default: "#777"
+   */
+  gridColor?: string;
+
+  /**
+   * The base color map used for visualizing intensity.
+   * Must contain exactly 8 color values.
+   * Colors can be hex numbers (`0xff0000`) or CSS strings (`"#ff0000"`).
+   * Default: Viridis colormap.
+   */
+  baseColors?: (number | string)[];
+
+  /**
+   * The color mapping range, normalized between 0 and 1.
+   * Default: { min: 0, max: 1 }
+   */
+  colorMapRange?: { min: number; max: number };
 }
 
 /**
-* Three.js-based implementation of the Spectrogram.
-*/
+ * Three.js-based implementation of the Spectrogram.
+ */
 export class SpectrogramThree extends Spectrogram {}
